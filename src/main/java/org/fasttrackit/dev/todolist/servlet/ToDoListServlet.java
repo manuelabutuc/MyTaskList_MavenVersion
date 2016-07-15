@@ -46,20 +46,45 @@ public class ToDoListServlet extends HttpServlet {
 
 
         HttpSession session = request.getSession(true);
-        String action = request.getParameter(ACTION);
 
-
-        if (action != null && action.equals(LIST_ACTION)) {
-            listAction(request, response);
-        } else if (action != null && action.equals(ADD_ACTION)) {
-            addAction(request, response);
-        } else if (action != null && action.equals(DONE_ACTION)) {
-            doneAction(request, response);
+        String username=(String)session.getAttribute("username");
+        if(username==null)
+        {
+            System.out.println("nu esti logat nene");
+            notLoginAction(request, response, true);
         }
+        else {
+            System.out.println("bravo, esti un user deja logat");
 
+            String action = request.getParameter(ACTION);
+
+
+            if (action != null && action.equals(LIST_ACTION)) {
+                listAction(request, response);
+            } else if (action != null && action.equals(ADD_ACTION)) {
+                addAction(request, response);
+            } else if (action != null && action.equals(DONE_ACTION)) {
+                doneAction(request, response);
+            }
+            else if (action != null && action.equals("seeLogin")) {
+                notLoginAction(request, response, false);
+            }
+        }
 
     }
 
+    private void notLoginAction(HttpServletRequest request, HttpServletResponse response, boolean notLogin)
+    {
+        String  jsonResponse;
+        if(notLogin)
+            jsonResponse = "{\"keyError\":\"You are not logged in. \"}";
+        else {
+            String username=(String)request.getSession().getAttribute("username");
+            jsonResponse = "{\"keyError\":\"Hello my friend "+username+"\"}";
+        }
+        returnJsonResponse(response, jsonResponse.toString());
+        System.out.println("end list action");
+    }
 
 
     private void listAction(HttpServletRequest request, HttpServletResponse response) {
